@@ -164,3 +164,78 @@ public class Stock
     }
 }
 
+
+2.事件参数StockDetailArgs
+public class StockDetailArgs: EventArgs
+{
+    private double _currentPrice;
+ 
+    public double CurrentPrice
+    {
+        get { return _currentPrice; }
+        set { _currentPrice = value; }
+    }
+}
+
+3.观察者接口IObserver
+public interface IObserver
+{
+    void Stoc_PriceChanged(object sender, StockDetailArgs e);
+}
+
+
+4.具体观察者Observer
+public class Observer : IObserver
+{
+    private string _investorName;
+    private double _buyPrice;
+    private Stock _stoc;
+    private bool _hasBoughtStock = false;
+ 
+    public string InvestorName
+    {
+        get { return _investorName; }
+        set { _investorName = value; }
+    }
+    public double BuyPrice
+    {
+        get { return _buyPrice; }
+        set { _buyPrice = value; }
+    }
+    public Stock Stoc
+    {
+        get { return _stoc; }
+        set { _stoc = value; }
+    }
+ 
+    public Observer(string investorName, double buyPrice)
+    {
+        this.InvestorName = investorName;
+        this.BuyPrice = buyPrice;
+    }
+ 
+    public void Stoc_PriceChanged(object sender, StockDetailArgs e)
+    {
+        if (e.CurrentPrice <= BuyPrice && _hasBoughtStock == false)
+        {
+            Console.WriteLine(string.Format("{0}在价格Price ={1}时买进了股票。",InvestorName,e.CurrentPrice));
+            _hasBoughtStock = true;
+        }
+    }
+}
+
+
+5.客户端代码
+static void Main(string[] args)
+{
+    Stock stock = new Stock();
+    stock.OpenPrice = 16.50;
+    stock.ClosePrice = 5.50;
+ 
+    Observer james = new Observer("灵动生活", 12.00);
+    Observer jane = new Observer("jane",8.05);
+    stock.AttachEvent(james);
+    stock.AttachEvent(jane);
+    stock.StartTrading();
+    Console.Read();
+}
